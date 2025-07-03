@@ -9,9 +9,10 @@ app = FastAPI()
 
 device = 0 if torch.cuda.is_available() else -1
 
+# Используем новую модель для распознавания речи
 asr = pipeline(
     "automatic-speech-recognition",
-    model="openai/whisper-base",
+    model="openai/whisper-large",
     device=device
 )
 emotion_classifier = pipeline(
@@ -61,7 +62,7 @@ async def transcribe_test():
     sf.write("temp.wav", y, 16000)
     result = asr("temp.wav", return_timestamps=True)
     text = result["text"]
-    emotion_scores = emotion_classifier(text)[0]
+    emotion_scores = emotion_classifier(text[:400])[0]
     top_emotion = max(emotion_scores, key=lambda x: x["score"])
     return {
         "text": text,
